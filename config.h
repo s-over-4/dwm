@@ -12,7 +12,7 @@
 #define FORCE_VSPLIT 1
 
 // includes
-#include "gruvbox.h"
+#include <theme.h>
 #include "bar.h"
 
 static unsigned int borderpx                 = 3;        // width of window borders, in pixels
@@ -33,8 +33,8 @@ static char normfgcolor[]                    = gbfg0;    // fg. color of inactiv
 static char selfgcolor[]                     = gbfg1;    // fg. color of active status bar elements
 static char selbordercolor[]                 = gbrel;    // border color of active windows
 static char selbgcolor[]                     = gbbg0;    // bg. color of active status bar elements
-static const unsigned int barnormalpha       = 0xcc;     // alpha of inactive status bar elements
-static const unsigned int barselalpha        = OPAQUE;   // alpha of active status bar elements
+static const unsigned int barnormalpha       = OPAC_dd;  // alpha of inactive status bar elements
+static const unsigned int barselalpha        = OPAC_dd;  // alpha of active status bar elements
 static const unsigned int normborderalpha    = OPAQUE;   // alpha of inactive window borders
 static const unsigned int selborderalpha     = OPAQUE;   // alpha of active window borders
 
@@ -56,8 +56,8 @@ static const char *tags[]                    = {         // window tags
 };
 
 static char *fonts[]                         = {         // font definitions
-   "Hack Nerd Font:size=10", 
-   "Hack Nerd Font:pixelsize=10:antialias=true:autohint=true"  
+   FONT_MONO,
+   FONT_MONO,
 };
 
 static char *colors[][3]                     = {         // color definitions
@@ -221,7 +221,7 @@ static const Key keys[]                      = {         // keyboard shortcut de
    { MODKEY,                     XK_o,             incnmaster,       {.i = +1 }                                               },  
    { MODKEY|ShiftMask,           XK_o,             incnmaster,       {.i = -1 }                                               },
 
-   { MODKEY,                     XK_p,             togglescratch,    {.ui = 1}                                                },
+   { MODKEY,                     XK_p,             spawn,            SHCMD("$SCR/wallpaper.sh")                               },
 // { MODKEY|ShiftMask,           XK_p,             togglescratch,    {.ui = 2}                                                },
 // { MODKEY,                     XK_bracketleft,   spawn,            SHCMD("")                                                }, 
 // { MODKEY|ShiftMask,           XK_bracketleft,   spawn,            SHCMD("")                                                }, 
@@ -286,8 +286,8 @@ static const Key keys[]                      = {         // keyboard shortcut de
 // { MODKEY,                     XK_Insert,        spawn,            SHCMD("")                                                },
 // { MODKEY|ShiftMask,           XK_Insert,        spawn,            SHCMD("")                                                },
 
-   { MODKEY,                     XK_space,         spawn,            SHCMD("dmenu_run")                                       },
-// { MODKEY|ShiftMask,           XK_space,         spawn,            SHCMD("")                                                },
+   { MODKEY,                     XK_space,         spawn,            SHCMD("$SCR/app_launcher.sh")                            },
+   { MODKEY|ShiftMask,           XK_space,         spawn,            SHCMD("dmenu_run")                                       },
 
 // { MODKEY,                     XK_F1,            spawn,            SHCMD("")                                                },
 // { MODKEY|ShiftMask,           XK_F1,            spawn,            SHCMD("")                                                },

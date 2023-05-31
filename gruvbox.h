@@ -22,7 +22,7 @@
 #define gbpud "#b16286" // purple
 #define gbpul "#d3869b"
 #define gbaqd "#689d6a" // aqua
-#define guaql "#8ec07c"
+#define gbaql "#8ec07c"
 #define gbord "#d65d0e" // orange
 #define gborl "#fe8019"
 #endif
