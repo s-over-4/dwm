@@ -20,6 +20,7 @@
  *
  * To understand everything else, start reading main().
  */
+#include <ctype.h> /* for making tab label lowercase, very tiny standard library */
 #include <errno.h>
 #include <locale.h>
 #include <signal.h>
@@ -86,6 +87,7 @@
                                   } \
                                 }
 #define TRUNC(X,A,B)            (MAX((A), MIN((X), (B))))
+#define ColFloat                3
 
 /* enums */
 enum { CurNormal, CurResize, CurMove, CurLast }; /* cursor */
@@ -379,6 +381,8 @@ static Colormap cmap;
 static char blockoutput[LENGTH(blocks)][CMDLENGTH + 1] = {0};
 static int pipes[LENGTH(blocks)][2];
 
+unsigned int tagw[LENGTH(tags)];
+
 /* compile-time check if all tags fit into an unsigned int bit array. */
 struct NumTags { char limitexceeded[LENGTH(tags) > 31 ? -1 : 1]; };
 
@@ -612,7 +616,7 @@ buttonpress(XEvent *e)
 			/* do not reserve space for vacant tags */
 			if (!(occ & 1 << i || m->tagset[m->seltags] & 1 << i))
 				continue;
-			x += TEXTW(tags[i]);
+			x += tagw[i];
 		} while (ev->x >= x && ++i < LENGTH(tags));
 		if (i < LENGTH(tags)) {
 			click = ClkTagBar;
@@ -907,6 +911,8 @@ drawbar(Monitor *m)
 	int boxw = drw->fonts->h / 6 + 2;
 	unsigned int i, occ = 0, urg = 0;
 	Client *c;
+	char taglabel[64];
+	char *masterclientontag[LENGTH(tags)];
 
 	if(!m->showbar)
 		return;
@@ -916,10 +922,25 @@ drawbar(Monitor *m)
       tw = getstatus(m->ww - (sp * 2) - 2); // quick hack to get this working with barpadding
 	}
 
+   for (i = 0; i < LENGTH(tags); i ++) {
+      masterclientontag[i] = NULL;
+   }
+
 	for (c = m->clients; c; c = c->next) {
 		occ |= c->tags == 255 ? 0 : c->tags;
 		if (c->isurgent) {
 			urg |= c->tags;
+
+			for (i = 0; i < LENGTH(tags); i++)
+				if (!masterclientontag[i] && c->tags & (1<<i)) {
+					XClassHint ch = { NULL, NULL };
+					XGetClassHint(dpy, c->win, &ch);
+					masterclientontag[i] = ch.res_class;
+					if (lcaselbl)
+						masterclientontag[i][0] = tolower(masterclientontag[i][0]);
+				}
+
+
       }
 	}
 	x = 0;
@@ -929,9 +950,25 @@ drawbar(Monitor *m)
          continue;
       }
 
-		w = TEXTW(tags[i]);
+
+		if (masterclientontag[i])
+			snprintf(taglabel, 64, ptagf, tags[i], masterclientontag[i]);
+		else
+			snprintf(taglabel, 64, etagf, tags[i]);
+		masterclientontag[i] = taglabel;
+		tagw[i] = w = TEXTW(masterclientontag[i]);
+
+
+
 		drw_setscheme(drw, scheme[m->tagset[m->seltags] & 1 << i ? SchemeSel : SchemeNorm]);
 		drw_text(drw, x, 0, w, bh, lrpad / 2, tags[i], urg & 1 << i);
+
+      drw_text(drw, x, 0, w, bh, lrpad / 2, masterclientontag[i], urg & 1 << i);      
+
+      if (ulineall || m->tagset[m->seltags] & 1 << i) { // if there are conflicts, just move these lines directly underneath both 'drw_setscheme' and 'drw_text' :)
+         drw_rect(drw, x + ulinepad, bh - ulinestroke - ulinevoffset, w - (ulinepad * 2), ulinestroke, 1, 0);
+      }
+
 		x += w;
 	}
 	w = TEXTW(m->ltsymbol);
@@ -1011,7 +1048,10 @@ focus(Client *c)
 		detachstack(c);
 		attachstack(c);
 		grabbuttons(c, 1);
-		XSetWindowBorder(dpy, c->win, scheme[SchemeSel][ColBorder].pixel);
+		if(c->isfloating)
+			XSetWindowBorder(dpy, c->win, scheme[SchemeSel][ColFloat].pixel);
+		else
+			XSetWindowBorder(dpy, c->win, scheme[SchemeSel][ColBorder].pixel);
 		setfocus(c);
 	} else {
 		XSetInputFocus(dpy, root, RevertToPointerRoot, CurrentTime);
@@ -1414,7 +1454,10 @@ manage(Window w, XWindowAttributes *wa)
 
 	wc.border_width = c->bw;
 	XConfigureWindow(dpy, w, CWBorderWidth, &wc);
-	XSetWindowBorder(dpy, w, scheme[SchemeNorm][ColBorder].pixel);
+	if(c->isfloating)
+		XSetWindowBorder(dpy, w, scheme[SchemeNorm][ColFloat].pixel);
+	else
+		XSetWindowBorder(dpy, w, scheme[SchemeNorm][ColBorder].pixel);
 	configure(c); /* propagates border_width, if size doesn't change */
 	updatewindowtype(c);
 	updatesizehints(c);
@@ -1447,6 +1490,8 @@ manage(Window w, XWindowAttributes *wa)
 		c->isfloating = c->oldstate = trans != None || c->isfixed;
 	if (c->isfloating)
 		XRaiseWindow(dpy, c->win);
+	if(c->isfloating)
+		XSetWindowBorder(dpy, w, scheme[SchemeNorm][ColFloat].pixel);
 	attach(c);
 	attachstack(c);
 	XChangeProperty(dpy, root, netatom[NetClientList], XA_WINDOW, 32, PropModeAppend,
@@ -2102,7 +2147,7 @@ setup(void)
 	if (!drw_fontset_create(drw, fonts, LENGTH(fonts)))
 		die("no fonts could be loaded.");
 	lrpad = drw->fonts->h;
-	bh = drw->fonts->h + 2;
+	bh = drw->fonts->h + bar_height;
 	sp = sidepad;
 	vp = (topbar == 1) ? vertpad : - vertpad;
 	updategeom();
@@ -2130,7 +2175,7 @@ setup(void)
 	/* init appearance */
 	scheme = ecalloc(LENGTH(colors), sizeof(Clr *));
 	for (i = 0; i < LENGTH(colors); i++)
-		scheme[i] = drw_scm_create(drw, colors[i], alphas[i], 3);
+		scheme[i] = drw_scm_create(drw, colors[i], alphas[i], 4);
 	/* init bars */
 	updatebars();
 	updatestatus();
@@ -2315,6 +2360,10 @@ togglefloating(const Arg *arg)
 		return;
 	selmon->sel->isfloating = !selmon->sel->isfloating || selmon->sel->isfixed;
 	if (selmon->sel->isfloating)
+		XSetWindowBorder(dpy, selmon->sel->win, scheme[SchemeSel][ColFloat].pixel);
+	else
+		XSetWindowBorder(dpy, selmon->sel->win, scheme[SchemeSel][ColBorder].pixel);
+	if(selmon->sel->isfloating)
 		resize(selmon->sel, selmon->sel->x, selmon->sel->y,
 			selmon->sel->w, selmon->sel->h, 0);
 	arrange(selmon);
