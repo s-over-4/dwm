@@ -86,26 +86,6 @@ static const unsigned int alphas[][4]        = {         // alpha definitions
    [SchemeSel]       = {   OPAQUE,     barselalpha,   selborderalpha,      selborderalpha       }, // active status bar element
 };
 
-typedef struct {
-   const char *name;
-   const void *cmd;
-} Sp;
-
-const char *sp_cove[]                         = {        // cove srcatchpad
-   TERMINAL,
-   "-n",
-   "sp cove",
-   "-e",
-   "cove",
-   NULL,
-};
-
-
-static Sp scratchpads[]                      = {         // scratchpad definitions
-   {  "spcove",  sp_cove,   },
-};
-
-
 static const Rule rules[]                    = {         // application-specific rule definitions
 
    // class          instance       title             tags mask      isfloating     isterminal  noswallow   monitor
@@ -252,12 +232,12 @@ static const Key keys[]                      = {         // keyboard shortcut de
    { MODKEY,                     XK_g,                      shiftview,        { .i = -1 }                                              },
    { MODKEY|ShiftMask,           XK_g,                      shifttag,         { .i = -1 }                                              },
    { MODKEY,                     XK_h,                      setmfact,         {.f = -0.05}                                             },
-   { MODKEY|ShiftMask,           XK_h,                      setmfact,         {.f = -0.5}                                              },
+   { MODKEY|ShiftMask,           XK_h,                      setmfact,         {.f = -0.1}                                              },
 
    // j and k already bound in STACKKEYS
 
    { MODKEY,                     XK_l,                      setmfact,         {.f = +0.05}                                             },
-   { MODKEY|ShiftMask,           XK_l,                      setmfact,         {.f = +0.5}                                              },
+   { MODKEY|ShiftMask,           XK_l,                      setmfact,         {.f = +0.1}                                              },
    { MODKEY,                     XK_semicolon,              shiftview,        { .i = 1 }                                               },
    { MODKEY|ShiftMask,           XK_semicolon,              shifttag,         { .i = -1 }                                              },
    { MODKEY,                     XK_apostrophe,             togglesmartgaps,  {0}                                                      },
@@ -269,17 +249,17 @@ static const Key keys[]                      = {         // keyboard shortcut de
 // { MODKEY|ShiftMask,           XK_z,                      spawn,            SHCMD("")                                                }, 
    { MODKEY,                     XK_x,                      incrgaps,         {.i = -3 }                                               },
 // { MODKEY|ShiftMask,           XK_x,                      spawn,            SHCMD("")                                                }, 
-   { MODKEY,                     XK_c,                      togglescratch,    {.ui = 0}                                                }, // cove
+// { MODKEY,                     XK_c,                      togglescratch,    {.ui = 0}                                                },
 // { MODKEY|ShiftMask,           XK_c,                      spawn,            SHCMD("")                                                },
 
    // v already bound in STACKKEYS
 
    { MODKEY,                     XK_b,                      togglebar,        {0}                                                      },
 // { MODKEY|ShiftMask,           XK_b,                      spawn,            SHCMD("")                                                },
-// { MODKEY,                     XK_n,                      spawn,            SHCMD("")                                                },
+// { MODKEY,                     XK_n,                      spawn,            SHCMD("$SCR/bmks")                                       },
 // { MODKEY|ShiftMask,           XK_n,                      spawn,            SHCMD("")                                                },
-   { MODKEY,                     XK_m,                      spawn,            SHCMD("$SCR/bmks_add.sh")                                },
-   { MODKEY|ShiftMask,           XK_m,                      spawn,            SHCMD("$SCR/bmks del")                                   },
+// { MODKEY,                     XK_m,                      spawn,            SHCMD("$SCR/bmks_add.sh")                                },
+// { MODKEY|ShiftMask,           XK_m,                      spawn,            SHCMD("$SCR/bmks del")                                   },
 // { MODKEY,                     XK_comma,                  spawn,            SHCMD("")                                                },
 // { MODKEY|ShiftMask,           XK_comma,                  spawn,            SHCMD("")                                                },
 // { MODKEY,                     XK_period,                 spawn,            SHCMD("")                                                },
@@ -298,7 +278,7 @@ static const Key keys[]                      = {         // keyboard shortcut de
 // { MODKEY|ShiftMask,           XK_Insert,                 spawn,            SHCMD("")                                                },
 
    { MODKEY,                     XK_space,                  spawn,            SHCMD("dmenu_run")                                       },
-   { MODKEY|ShiftMask,           XK_space,                  spawn,            SHCMD("$SCR/app_launcher.sh")                            },
+   { MODKEY|ShiftMask,           XK_space,                  spawn,            SHCMD("$SCR/dmenu_run_term")                             },
 
 // { MODKEY,                     XK_F1,                     spawn,            SHCMD("")                                                },
 // { MODKEY|ShiftMask,           XK_F1,                     spawn,            SHCMD("")                                                },
@@ -328,9 +308,9 @@ static const Key keys[]                      = {         // keyboard shortcut de
    { 0,                          XK_Print,                  spawn,            SHCMD("$SCR/screenshot_ful.sh")                          },
    { ShiftMask,                  XK_Print,                  spawn,            SHCMD("$HOME/scripts/screenshot_sel.sh")                 },
    { 0,                          XF86XK_Sleep,              spawn,            {.v = (const char*[]){ "sudo", "-A", "zzz", NULL } }     },
-   { 0,                          XF86XK_AudioRaiseVolume,   spawn,            SHCMD("amixer set Master 2%+")                           },
-   { 0,                          XF86XK_AudioLowerVolume,   spawn,            SHCMD("amixer set Master 2%-")                           },
-   { 0,                          XF86XK_AudioMute,          spawn,            SHCMD("amixer set Master toggle")                        },
+   { 0,                          XF86XK_AudioRaiseVolume,   spawn,            SHCMD("amixer set Master 1%+ && $SCR/ublock.sh 3")       },
+   { 0,                          XF86XK_AudioLowerVolume,   spawn,            SHCMD("amixer set Master 1%- && $SCR/ublock.sh 3")       },
+   { 0,                          XF86XK_AudioMute,          spawn,            SHCMD("amixer set Master toggle && $SCR/ublock.sh 3")    },
 };
 
 // button defs

@@ -51,43 +51,43 @@
 #include "util.h"
 
 /* macros */
-#define BUTTONMASK              (ButtonPressMask|ButtonReleaseMask)
-#define CLEANMASK(mask)         (mask & ~(numlockmask|LockMask) & (ShiftMask|ControlMask|Mod1Mask|Mod2Mask|Mod3Mask|Mod4Mask|Mod5Mask))
-#define GETINC(X)               ((X) - 2000)
-#define INC(X)                  ((X) + 2000)
-#define INTERSECT(x,y,w,h,m)    (MAX(0, MIN((x)+(w),(m)->wx+(m)->ww) - MAX((x),(m)->wx)) \
-                               * MAX(0, MIN((y)+(h),(m)->wy+(m)->wh) - MAX((y),(m)->wy)))
-#define ISINC(X)                ((X) > 1000 && (X) < 3000)
-#define ISVISIBLE(C)            ((C->tags & C->mon->tagset[C->mon->seltags]) || C->issticky)
-#define PREVSEL                 3000
-#define LENGTH(X)               (sizeof X / sizeof X[0])
-#define MOUSEMASK               (BUTTONMASK|PointerMotionMask)
-#define MOD(N,M)                ((N)%(M) < 0 ? (N)%(M) + (M) : (N)%(M))
-#define WIDTH(X)                ((X)->w + 2 * (X)->bw)
-#define HEIGHT(X)               ((X)->h + 2 * (X)->bw)
-#define NUMTAGS			(LENGTH(tags) + LENGTH(scratchpads))
-#define TAGMASK			((1 << NUMTAGS) - 1)
-#define SPTAG(i)		((1 << LENGTH(tags)) << (i))
-#define SPTAGMASK		(((1 << LENGTH(scratchpads))-1) << LENGTH(tags))
-#define TEXTW(X)                (drw_fontset_getwidth(drw, (X)) + lrpad)
+#define BUTTONMASK               (ButtonPressMask|ButtonReleaseMask)
+#define CLEANMASK(mask)          (mask & ~(numlockmask|LockMask) & (ShiftMask|ControlMask|Mod1Mask|Mod2Mask|Mod3Mask|Mod4Mask|Mod5Mask))
+#define GETINC(X)                ((X) - 2000)
+#define INC(X)                   ((X) + 2000)
+#define INTERSECT(x,y,w,h,m)     (MAX(0, MIN((x)+(w),(m)->wx+(m)->ww) - MAX((x),(m)->wx)) \
+                                 * MAX(0, MIN((y)+(h),(m)->wy+(m)->wh) - MAX((y),(m)->wy)))
+#define ISINC(X)                 ((X) > 1000 && (X) < 3000)
+#define ISVISIBLE(C)             ((C->tags & C->mon->tagset[C->mon->seltags]) || C->issticky)
+#define PREVSEL                  3000
+#define LENGTH(X)                (sizeof X / sizeof X[0])
+#define MOUSEMASK                (BUTTONMASK|PointerMotionMask)
+#define MOD(N,M)                 ((N)%(M) < 0 ? (N)%(M) + (M) : (N)%(M))
+#define WIDTH(X)                 ((X)->w + 2 * (X)->bw)
+#define HEIGHT(X)                ((X)->h + 2 * (X)->bw)
+#define NUMTAGS			         (LENGTH(tags))
+#define TAGMASK			         ((1 << NUMTAGS) - 1)
+#define SPTAG(i)		            ((1 << LENGTH(tags)) << (i))
+#define SPTAGMASK		            (1 << LENGTH(tags))
+#define TEXTW(X)                 (drw_fontset_getwidth(drw, (X)) + lrpad)
 #define OPAQUE 0xffU
-#define XRDB_LOAD_COLOR(R,V)    if (XrmGetResource(xrdb, R, NULL, &type, &value) == True) { \
-                                  if (value.addr != NULL && strnlen(value.addr, 8) == 7 && value.addr[0] == '#') { \
+#define XRDB_LOAD_COLOR(R,V)     if (XrmGetResource(xrdb, R, NULL, &type, &value) == True) { \
+                                    if (value.addr != NULL && strnlen(value.addr, 8) == 7 && value.addr[0] == '#') { \
                                     int i = 1; \
                                     for (; i <= 6; i++) { \
-                                      if (value.addr[i] < 48) break; \
-                                      if (value.addr[i] > 57 && value.addr[i] < 65) break; \
-                                      if (value.addr[i] > 70 && value.addr[i] < 97) break; \
-                                      if (value.addr[i] > 102) break; \
+                                       if (value.addr[i] < 48) break; \
+                                       if (value.addr[i] > 57 && value.addr[i] < 65) break; \
+                                       if (value.addr[i] > 70 && value.addr[i] < 97) break; \
+                                       if (value.addr[i] > 102) break; \
                                     } \
                                     if (i == 7) { \
-                                      strncpy(V, value.addr, 7); \
-                                      V[7] = '\0'; \
+                                       strncpy(V, value.addr, 7); \
+                                       V[7] = '\0'; \
                                     } \
-                                  } \
-                                }
-#define TRUNC(X,A,B)            (MAX((A), MIN((X), (B))))
-#define ColFloat                3
+                                    } \
+                                 }
+#define TRUNC(X,A,B)             (MAX((A), MIN((X), (B))))
+#define ColFloat                 3
 
 /* enums */
 enum { CurNormal, CurResize, CurMove, CurLast }; /* cursor */
@@ -289,7 +289,6 @@ static void tag(const Arg *arg);
 static void tagmon(const Arg *arg);
 static void togglebar(const Arg *arg);
 static void togglefloating(const Arg *arg);
-static void togglescratch(const Arg *arg);
 static void togglesticky(const Arg *arg);
 static void togglefullscr(const Arg *arg);
 static void toggletag(const Arg *arg);
@@ -908,7 +907,7 @@ drawbar(Monitor *m)
 {
 	int x, w, tw = 0;
 	int boxs = drw->fonts->h / 9;
-	int boxw = drw->fonts->h / 6 + 2;
+	int boxw = drw->fonts->h / 6;
 	unsigned int i, occ = 0, urg = 0;
 	Client *c;
 	char taglabel[64];
@@ -919,7 +918,7 @@ drawbar(Monitor *m)
 
 	/* draw status first so it can be overdrawn by tags later */
 	if (m == selmon) { /* status is only drawn on selected monitor */
-      tw = getstatus(m->ww - (sp * 2) - 2); // quick hack to get this working with barpadding
+      tw = getstatus(m->ww - (lrpad + 5)); // quick hack to get this working with barpadding
 	}
 
    for (i = 0; i < LENGTH(tags); i ++) {
@@ -1220,7 +1219,7 @@ getstatus(int width)
 
 
 #if INVERSED
-	for (i = 0; i < LENGTH(blocks); i++) {
+	for (i = 0; i < LENGTH(blocks) ; i++) {
       int last = LENGTH(blocks) - 1;
 #else
 	for (i = LENGTH(blocks) - 1; i >= 0; i--) {
@@ -1229,6 +1228,12 @@ getstatus(int width)
 		if (*blockoutput[i] == '\0') { /* ignore command that output NULL or '\0' */
 			continue;
       }
+		if (*delimiter == '\0') { // ignore no delimiter and last delimiter
+			continue;
+      }
+		drw_setscheme(drw, scheme[SchemeNorm]);
+		all -= delimlen;
+		drw_text(drw, all, 0, delimlen, bh, 0, delimiter, 0);
 		strncpy(fgcol, blocks[i].color, 8);
 		/* re-load the scheme with the new colors */
 		scheme[SchemeStatus] = drw_scm_create(drw, cols, alphas[SchemeSel], 3); // draw blocks with selected scheme
@@ -1237,15 +1242,9 @@ getstatus(int width)
 		all -= len;
 		drw_text(drw, all, 0, len, bh, 0, blockoutput[i], 0);
 		/* draw delimiter */
-		if (*delimiter == '\0' || i == last) { // ignore no delimiter and last delimiter
-			continue;
-      }
-		drw_setscheme(drw, scheme[SchemeNorm]);
-		all -= delimlen;
-		drw_text(drw, all, 0, delimlen, bh, 0, delimiter, 0);
 	}
 
-	return stsw = width - all;
+	return stsw = width - all;;
 }
 
 int
@@ -2385,31 +2384,6 @@ togglesticky(const Arg *arg)
 	arrange(selmon);
 }
 
-void
-togglescratch(const Arg *arg)
-{
-	Client *c;
-	unsigned int found = 0;
-	unsigned int scratchtag = SPTAG(arg->ui);
-	Arg sparg = {.v = scratchpads[arg->ui].cmd};
-
-	for (c = selmon->clients; c && !(found = c->tags & scratchtag); c = c->next);
-	if (found) {
-		unsigned int newtagset = selmon->tagset[selmon->seltags] ^ scratchtag;
-		if (newtagset) {
-			selmon->tagset[selmon->seltags] = newtagset;
-			focus(NULL);
-			arrange(selmon);
-		}
-		if (ISVISIBLE(c)) {
-			focus(c);
-			restack(selmon);
-		}
-	} else {
-		selmon->tagset[selmon->seltags] |= scratchtag;
-		spawn(&sparg);
-	}
-}
 
 void
 toggletag(const Arg *arg)
