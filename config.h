@@ -68,7 +68,7 @@ static const int lcaselbl                    = 1;           // make tag label lo
 
 static char *fonts[]                         = {         // font definitions
    FONT_MONO,
-   FONT_MONO,
+   "Apple Color Emoji"
 };
 
 static char *colors[][4]                     = {         // color definitions
@@ -92,7 +92,7 @@ static const Rule rules[]                    = {         // application-specific
    {  "Gimp",        NULL,          NULL,             0,             0,             0,          0,          -1,   },
    {  TERMCLASS,     NULL,          NULL,             0,             0,             1,          0,          -1,   },
    {  NULL,          NULL,          "Event Tester",   0,             0,             0,          1,          -1,   },
-   {  TERMCLASS,     "bg",          NULL,             1 << 7,        0,             1,          0,          -1,   },
+   {  "float",       NULL,          NULL,             0,             1,             1,          1,          -1,   },
 };
 
 
@@ -111,10 +111,10 @@ static const Layout layouts[]                = {         // layout definitions
    {  "TTT",               bstack                  },    // master on top, slaves portrait on bottom 
 
    {  "[@]",               spiral                  },    // fibonacci spiral
-   {  "<o>",               dwindle                 },    // decreasing in size right and leftward
+   {  "[]\\",              dwindle                 },    // decreasing in size right and leftward
 
-   {  "[D]",               deck                    },    // master on left, slaves in monocle-like mode on right
-   {  "[M]",               monocle                 },    // all windows on top of eachother
+   {  "[]M",               deck                    },    // master on left, slaves in monocle-like mode on right
+   {  "[M]",               monocle                 },    // all windows on top of each other
 
    {  "|M|",               centeredmaster          },    // master in middle, slaves on sides
    {  "-M-",               centeredfloatingmaster  },    // slaves on sides, master floats in middle
