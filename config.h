@@ -6,7 +6,7 @@
 
 #define TERMINAL  "st"
 #define TERMCLASS "St"
-#define BROWSER   "qutebrowser"
+#define BROWSER   "$BROWSER"
 
 // force to clients to always split vertically?
 #define FORCE_VSPLIT 1
@@ -36,8 +36,8 @@ static char selfgcolor[]                     = gbfg1;    // fg. color of active 
 static char selbordercolor[]                 = gbrel;    // border color of active windows
 static char selborderfcolor[]                = gborl;    // border color of active floating windows
 static char selbgcolor[]                     = gbbgh;    // bg. color of active status bar elements
-static const unsigned int barnormalpha       = OPAQUE;   // alpha of inactive status bar elements
-static const unsigned int barselalpha        = OPAQUE;   // alpha of active status bar elements
+static const unsigned int barnormalpha       = 0xee;     // alpha of inactive status bar elements
+static const unsigned int barselalpha        = 0xee;     // alpha of active status bar elements
 static const unsigned int normborderalpha    = OPAQUE;   // alpha of inactive window borders
 static const unsigned int selborderalpha     = OPAQUE;   // alpha of active window borders
 static const unsigned int ulinepad           = 5;        // horizontal padding between the underline and the tag
@@ -249,7 +249,7 @@ static const Key keys[]                      = {         // keyboard shortcut de
 // { MODKEY|ShiftMask,           XK_z,                      spawn,            SHCMD("")                                                }, 
    { MODKEY,                     XK_x,                      incrgaps,         {.i = -3 }                                               },
 // { MODKEY|ShiftMask,           XK_x,                      spawn,            SHCMD("")                                                }, 
-// { MODKEY,                     XK_c,                      togglescratch,    {.ui = 0}                                                },
+   { MODKEY,                     XK_c,                      spawn,            SHCMD("passmenu")                                        },
 // { MODKEY|ShiftMask,           XK_c,                      spawn,            SHCMD("")                                                },
 
    // v already bound in STACKKEYS
@@ -258,8 +258,8 @@ static const Key keys[]                      = {         // keyboard shortcut de
 // { MODKEY|ShiftMask,           XK_b,                      spawn,            SHCMD("")                                                },
 // { MODKEY,                     XK_n,                      spawn,            SHCMD("$SCR/bmks")                                       },
 // { MODKEY|ShiftMask,           XK_n,                      spawn,            SHCMD("")                                                },
-// { MODKEY,                     XK_m,                      spawn,            SHCMD("$SCR/bmks_add.sh")                                },
-// { MODKEY|ShiftMask,           XK_m,                      spawn,            SHCMD("$SCR/bmks del")                                   },
+   { MODKEY,                     XK_m,                      spawn,            SHCMD("$SCR/bmark --open")                               },
+   { MODKEY|ShiftMask,           XK_m,                      spawn,            SHCMD("$SCR/bmark --add")                                },
 // { MODKEY,                     XK_comma,                  spawn,            SHCMD("")                                                },
 // { MODKEY|ShiftMask,           XK_comma,                  spawn,            SHCMD("")                                                },
 // { MODKEY,                     XK_period,                 spawn,            SHCMD("")                                                },
@@ -307,6 +307,7 @@ static const Key keys[]                      = {         // keyboard shortcut de
 
    { 0,                          XK_Print,                  spawn,            SHCMD("$SCR/screenshot_ful.sh")                          },
    { ShiftMask,                  XK_Print,                  spawn,            SHCMD("$HOME/scripts/screenshot_sel.sh")                 },
+   { 0,                          XF86XK_Battery,            spawn,            SHCMD("slock")                                           },
    { 0,                          XF86XK_Sleep,              spawn,            {.v = (const char*[]){ "sudo", "-A", "zzz", NULL } }     },
    { 0,                          XF86XK_AudioRaiseVolume,   spawn,            SHCMD("amixer set Master 1%+ && $SCR/ublock.sh 3")       },
    { 0,                          XF86XK_AudioLowerVolume,   spawn,            SHCMD("amixer set Master 1%- && $SCR/ublock.sh 3")       },
