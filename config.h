@@ -306,8 +306,8 @@ static const Key keys[]                      = {         // keyboard shortcut de
 // { MODKEY|ShiftMask,           XK_F12,                    spawn,            SHCMD("")                                                },
 
    { 0,                          XK_Print,                  spawn,            SHCMD("$SCR/screenshot_ful.sh")                          },
-   { ShiftMask,                  XK_Print,                  spawn,            SHCMD("$HOME/scripts/screenshot_sel.sh")                 },
-   { 0,                          XF86XK_Battery,            spawn,            SHCMD("slock")                                           },
+   { ShiftMask,                  XK_Print,                  spawn,            SHCMD("$SCR/screenshot_sel.sh")                          },
+   { 0,                          XF86XK_Battery,            spawn,            SHCMD("slock $SCR/userlog.sh slock")                     },
    { 0,                          XF86XK_Sleep,              spawn,            {.v = (const char*[]){ "sudo", "-A", "zzz", NULL } }     },
    { 0,                          XF86XK_AudioRaiseVolume,   spawn,            SHCMD("amixer set Master 1%+ && $SCR/ublock.sh 3")       },
    { 0,                          XF86XK_AudioLowerVolume,   spawn,            SHCMD("amixer set Master 1%- && $SCR/ublock.sh 3")       },
