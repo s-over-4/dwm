@@ -142,7 +142,7 @@ static const Layout layouts[]                = {         // layout definitions
 ResourcePref resources[]                     = {         // .Xresources preferences to load at startup
 
    // setting           type        value
-   {  "color4",         STRING,     &normbordercolor  },
+   {  "color0",         STRING,     &normbordercolor  },
    {  "color12",        STRING,     &selbordercolor   },
    {  "background",     STRING,     &normbgcolor      },
    {  "color4",         STRING,     &normfgcolor      },
